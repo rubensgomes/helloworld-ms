@@ -253,7 +253,7 @@ release {
   }
 }
 
-tasks.afterReleaseBuild { dependsOn("publish") }
+// tasks.afterReleaseBuild { dependsOn("publish") }
 
 // ----------------------------------------------------------------------------
 // --------------- >>> org.jetbrains.kotlin.jvm Plugin <<< --------------------
