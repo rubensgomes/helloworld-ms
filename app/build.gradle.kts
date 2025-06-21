@@ -31,16 +31,11 @@ val title: String by project
 val repsyUsername = System.getenv("REPSY_USERNAME")
 val repsyPassword = System.getenv("REPSY_PASSWORD")
 
-
 configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }
-
 
 // --------------- >>> repositories <<< ---------------------------------------
 
-repositories {
-  mavenCentral()
-}
-
+repositories { mavenCentral() }
 
 // --------------- >>> dependencies <<< ---------------------------------------
 
@@ -262,9 +257,7 @@ release {
   }
 }
 
-tasks.afterReleaseBuild {
-  dependsOn("publish")
-}
+tasks.afterReleaseBuild { dependsOn("publish") }
 
 // ----------------------------------------------------------------------------
 // --------------- >>> org.jetbrains.kotlin.jvm Plugin <<< --------------------
@@ -305,7 +298,7 @@ sonar {
 }
 
 // task.check includes jacocoTestReport
-//tasks.sonar { dependsOn("jacocoTestReport") }
+// tasks.sonar { dependsOn("jacocoTestReport") }
 tasks.sonar { dependsOn("check") }
 
 // ----------------------------------------------------------------------------
