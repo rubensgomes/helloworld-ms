@@ -27,10 +27,6 @@ val developerId: String by project
 val developerName: String by project
 val title: String by project
 
-// REPSY environment variables
-val repsyUsername = System.getenv("REPSY_USERNAME")
-val repsyPassword = System.getenv("REPSY_PASSWORD")
-
 configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }
 
 // --------------- >>> repositories <<< ---------------------------------------
@@ -170,16 +166,19 @@ tasks.test {
 // ----------------------------------------------------------------------------
 // https://docs.gradle.org/current/userguide/publishing_maven.html
 
+// REPSY environment variables
+val repsyUsername = System.getenv("REPSY_USERNAME")
+val repsyPassword = System.getenv("REPSY_PASSWORD")
+
+// gradle.properties:
+val developerEmail: String by project
+val scmConnection: String by project
+val scmUrl: String by project
+val license: String by project
+val licenseUrl: String by project
+
 publishing {
   publications {
-    val developerEmail: String by project
-
-    val scmConnection: String by project
-    val scmUrl: String by project
-
-    val license: String by project
-    val licenseUrl: String by project
-
     create<MavenPublication>("maven") {
       groupId = project.group.toString()
       artifactId = artifact
@@ -190,7 +189,7 @@ publishing {
       pom {
         name = title
         description = project.description
-        inceptionYear = "2024"
+        inceptionYear = "2025"
         packaging = "jar"
 
         licenses {
