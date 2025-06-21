@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 class HelloWorldRestController(
     @Autowired val service: HelloWorldService,
 ) {
+    @Suppress("unused")
     @Operation(
         summary = "Prints hello world message",
         operationId = "helloWorld",

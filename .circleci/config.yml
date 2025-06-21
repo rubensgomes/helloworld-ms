@@ -1,12 +1,19 @@
 ---
 version: 2.1
 
+orbs:
+  sonarcloud: sonarsource/sonarcloud@3.0.0
+
 parameters:
   action:
     type: enum
     enum:
-      - build-test
-    default: build-test
+      - build-check
+    default: build-check
+  project_root:
+    type: string
+    default: "helloworld-ms"
+
 
   ######################  executors  #############################################
 
@@ -14,7 +21,7 @@ executors:
 
   amd64_docker_executor:
     description: >
-      An AMD64 CPU architecture cimg/base executor image.
+      An Ubuntu executor image.
     docker:
       - image: cimg/base:2025.06
     resource_class: large
@@ -26,38 +33,57 @@ executors:
       - image: cimg/openjdk:21.0
     resource_class: large
 
+  node_executor:
+    description: >
+      A NodeJS 24 executor.
+    docker:
+      - image: cimg/node:24.2
+    resource_class: large
+
+
 ######################  jobs  ##################################################
 
 jobs:
 
-  ####################  build-test-job  #######################################
+  ####################  build-check-job  #######################################
   ##
-  build-test-job:
+  build-check-job:
     description: >
-      Job to run linter, build, and unit test.
+      Job to run linter, build, and unit tests.
     executor: jdk21_executor
     steps:
       - checkout
       - run:
           name: Build and run unit tests
           command: |
-            ./gradlew :app:spotlessCheck  || {
-              printf "run ./gradlew :app:spotlessApply\n" >&2
-              exit 1
-            }
-            ./gradlew --info check
+            ./gradlew check -i
+
+  ####################  sonar-scan-job  #######################################
+  ##
+  sonar-scan-job:
+    description: >
+      Job to run SonarQube scanner on project.
+    executor: jdk21_executor
+    steps:
+      - checkout
+      - run: ./gradlew check
+      - sonarcloud/scan
 
 ######################  workflows  #############################################
 
 workflows:
 
-  ####################  build-test-workflow  ###################################
+  ####################  main-workflow  ########################################
   ##
-  build-test-workflow:
+  main-workflow:
     when:
-      equal: [build-test, << pipeline.parameters.action >>]
+      equal: [build-check, << pipeline.parameters.action >>]
     jobs:
-      # Build, lint, and unit test
-      - build-test-job
-      # Sonar qube software quality gate
-      -
+      - build-check-job:
+          context:
+            - repsy
+      - sonar-scan-job:
+          context:
+            - repsy
+            - sonarcloud
+

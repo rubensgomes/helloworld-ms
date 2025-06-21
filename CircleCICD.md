@@ -1,9 +1,10 @@
-# CircleCI CICD Local Testing
+# CircleCI
 
 This file describes steps to test and run [CircleCI](https://circleci.com/) jobs
-locally on a developer's UNIX computer (e.g., macOS or Linux).
+locally on a developer's UNIX computer (e.g., macOS or Linux). In addition, it
+describes how to set up CircleCI to run remote CICD builds.
 
-## Pre-requisite Requirements
+## Local CircleCI Job Run
 
 ### Docker Engine
 
@@ -29,7 +30,7 @@ declare -x CIRCLECI_CLI_TOKEN='<copy and paste personal api token here>'
 You must install the CircleCI CLI tools following
 these [Install and configure the CircleCI local CLI](https://circleci.com/docs/local-cli/).
 
-## Validate a CircleCI Config
+### Validate a CircleCI Config
 
 To validate your local `.circleci/config.yml` follow
 these [Validate a CircleCI config](https://circleci.com/docs/how-to-use-the-circleci-local-cli/#validate-a-circleci-config).
@@ -38,7 +39,7 @@ these [Validate a CircleCI config](https://circleci.com/docs/how-to-use-the-circ
 circleci config validate .circleci/config.yml
 ```
 
-## Processing a CircleCI Config
+### Processing a CircleCI Config
 
 In addition to validating your CircleCI config, you may also display expanded
 source configuration as
@@ -48,15 +49,44 @@ in [Processing a config](https://circleci.com/docs/how-to-use-the-circleci-local
 circleci config process .circleci/config.yml
 ```
 
-## Run a Circleci Job in a Container on Your Machine
+### Run a Circleci Job in a Container on Your Machine
 
 Once `config.yml` is validated you may execute a job in the `config.yml` as
 in [Run a job in a container on your machine](https://circleci.com/docs/how-to-use-the-circleci-local-cli/#run-a-job-in-a-container-on-your-machine).
 
 ```shell
 # ensure your Docker Engine is running.
-circleci local execute build-test-job
+JOB_NAME="build-check-job"
+circleci local execute "${JOB_NAME}"    \
+  -e REPSY_USERNAME="${REPSY_USERNAME}" \
+  -e REPSY_PASSWORD="${REPSY_PASSWORD}"
 ```
+
+```shell
+# ensure your Docker Engine is running.
+JOB_NAME="sonar-scan-job"
+circleci local execute "${JOB_NAME}"    \
+  -e REPSY_USERNAME="${REPSY_USERNAME}" \
+  -e REPSY_PASSWORD="${REPSY_PASSWORD}" \
+  -e SONAR_TOKEN="${SONAR_TOKEN}"
+```
+
+
+## Set Up Remote CircleCI Environment
+
+### Configure `sonarcloud` and `repsy` Contexts
+
+1. Login to CircleCI
+2. Select the Organization --> Organization Settings --> Context
+3. Create "sonarcloud" SonarQube Sonar Cloud API token
+    - Add environment variable "SONAR_TOKEN" and assign it to the generated
+      SonarCloud Token
+    - [SonarQube Cloud Orb](https://github.com/SonarSource/sonarcloud-circleci-orb/blob/master/README.md#sonarqube-cloud-orb)
+4. Create "repsy" Maven repsy.io context
+    - Add environment variable "REPSY_USERNAME" and assign it to the
+      corresponding repsy.io username
+    - Add environment variable "REPSY_PASSWORD" and assign it to the
+      corresponding repsy.io password
 
 ## CircleCI CLI Commands
 

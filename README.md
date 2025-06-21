@@ -17,6 +17,12 @@ A basic Kotlin Spring Boot microservice.
 ./gradlew -q javaToolchains
 ```
 
+## Install SonarQube for IDE
+
+- This steps assumes you are using `JetBrains IntelliJIDEA`
+- [SonarQube Plugin Installation](https://docs.sonarsource.com/sonarqube-for-ide/intellij/getting-started/installation/)
+
+
 ## Clean, lint, test, and assemble
 
 ```shell
@@ -49,7 +55,7 @@ A basic Kotlin Spring Boot microservice.
   ./gradlew --stop
   ```
 
-- To render the `Hello World!` messasge:
+- To render the `Hello World!` message:
 
   ```shell
   curl --verbose "http://localhost:8080/api/v1/helloworld"
@@ -64,8 +70,8 @@ A basic Kotlin Spring Boot microservice.
 
 ## Public API in AWS ECS
 
-- Ensure cluster is setup
-- Ensure task definition is setup (SERVER_PORT=8888)
+- Ensure cluster is set up
+- Ensure task definition is set up (SERVER_PORT=8888)
 - Ensure service is up and running
 - Ensure security group allows proper inbound traffic to port 8888
 - http://<ECS-TASK-PUBLIC_IP>:8888/api/v1/helloworld

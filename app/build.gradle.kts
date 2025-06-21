@@ -27,7 +27,20 @@ val developerId: String by project
 val developerName: String by project
 val title: String by project
 
+// REPSY environment variables
+val repsyUsername = System.getenv("REPSY_USERNAME")
+val repsyPassword = System.getenv("REPSY_PASSWORD")
+
+
 configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }
+
+
+// --------------- >>> repositories <<< ---------------------------------------
+
+repositories {
+  mavenCentral()
+}
+
 
 // --------------- >>> dependencies <<< ---------------------------------------
 
@@ -71,18 +84,34 @@ dependencies {
 // ----------------------------------------------------------------------------
 // --------------- >>> Gradle Base Plugin <<< ---------------------------------
 // ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/base_plugin.html
 
-tasks.check { dependsOn("sonar") }
+// run sonar independently since it requires a remote connection to sonarcloud.io
+// tasks.check { dependsOn("sonar") }
 
 // ----------------------------------------------------------------------------
-// --------------- >>> Gradle distribution plugin <<< -------------------------
+// --------------- >>> Gradle Distribution Plugin <<< -------------------------
 // ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/distribution_plugin.html
 
 distributions { main { distributionBaseName = "helloworld-ms" } }
 
 // ----------------------------------------------------------------------------
-// --------------- >>> Gradle jacoco Plugin <<< -------------------------------
+// --------------- >>> Gradle IDEA Plugin <<< ---------------------------------
 // ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/idea_plugin.html
+
+idea {
+  module {
+    isDownloadJavadoc = true
+    isDownloadSources = true
+  }
+}
+
+// ----------------------------------------------------------------------------
+// --------------- >>> Gradle jaCoCo Plugin <<< -------------------------------
+// ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/jacoco_plugin.html
 
 tasks.jacocoTestReport {
   // tests are required to run before generating the report
@@ -98,19 +127,9 @@ tasks.jacocoTestReport {
 }
 
 // ----------------------------------------------------------------------------
-// --------------- >>> Gradle idea Plugin <<< ---------------------------------
+// --------------- >>> Gradle Java Plugin <<< ---------------------------------
 // ----------------------------------------------------------------------------
-
-idea {
-  module {
-    isDownloadJavadoc = true
-    isDownloadSources = true
-  }
-}
-
-// ----------------------------------------------------------------------------
-// --------------- >>> Gradle java Plugin <<< ---------------------------------
-// ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/java_plugin.html
 
 java {
   withSourcesJar()
@@ -137,8 +156,9 @@ tasks.jar {
 }
 
 // ----------------------------------------------------------------------------
-// --------------- >>> Gradle jvm-test-suite Plugin <<< -----------------------
+// --------------- >>> Gradle JVM Test Suite Plugin <<< -----------------------
 // ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/jvm_test_suite_plugin.html
 
 tasks.test {
   // Use JUnit Platform for unit tests.
@@ -151,8 +171,9 @@ tasks.test {
 }
 
 // ----------------------------------------------------------------------------
-// --------------- >>> Gradle maven-puglish Plugin <<< ------------------------
+// --------------- >>> Gradle Maven Publish Plugin <<< ------------------------
 // ----------------------------------------------------------------------------
+// https://docs.gradle.org/current/userguide/publishing_maven.html
 
 publishing {
   publications {
@@ -201,8 +222,6 @@ publishing {
 
   repositories {
     val repsyUrl: String by project
-    val repsyUsername: String by project
-    val repsyPassword: String by project
 
     maven {
       url = uri(repsyUrl)
@@ -217,6 +236,7 @@ publishing {
 // ----------------------------------------------------------------------------
 // --------------- >>> com.diffplug.spotless Plugin <<< -----------------------
 // ----------------------------------------------------------------------------
+// https://github.com/diffplug/spotless
 
 spotless {
   kotlin {
@@ -233,6 +253,7 @@ spotless {
 // ----------------------------------------------------------------------------
 // --------------- >>> net.researchgate.release Plugin <<< --------------------
 // ----------------------------------------------------------------------------
+// https://github.com/researchgate/gradle-release
 
 release {
   with(git) {
@@ -241,9 +262,14 @@ release {
   }
 }
 
+tasks.afterReleaseBuild {
+  dependsOn("publish")
+}
+
 // ----------------------------------------------------------------------------
 // --------------- >>> org.jetbrains.kotlin.jvm Plugin <<< --------------------
 // ----------------------------------------------------------------------------
+// https://kotlinlang.org/docs/gradle-configure-project.html#kotlin-and-java-sources
 
 kotlin {
   compilerOptions {
@@ -262,22 +288,30 @@ tasks.compileKotlin { dependsOn("spotlessApply") }
 // ----------------------------------------------------------------------------
 // --------------- >>> org.sonarqube Plugin <<< -------------------------------
 // ----------------------------------------------------------------------------
+// https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/scanners/sonarscanner-for-gradle/
+
+//  gradle.properties:
+val sonarProjKey = project.findProperty("sonar.projectKey") as String
+val sonarOrganization = project.findProperty("sonar.organization") as String
+val sonarHostUrl = project.findProperty("sonar.host.url") as String
 
 sonar {
   properties {
-    // environment must have SONAR_TOKEN
-    // export SONAR_TOKEN="SECRET"
-    property("sonar.projectKey", "rubensgomes_helloworld-ms")
-    property("sonar.organization", "rubensgomes")
-    property("sonar.host.url", "https://sonarcloud.io")
+    // SONAR_TOKEN must be defined as an environment variable
+    property("sonar.projectKey", sonarProjKey)
+    property("sonar.organization", sonarOrganization)
+    property("sonar.host.url", sonarHostUrl)
   }
 }
 
-tasks.sonar { dependsOn("test") }
+// task.check includes jacocoTestReport
+//tasks.sonar { dependsOn("jacocoTestReport") }
+tasks.sonar { dependsOn("check") }
 
 // ----------------------------------------------------------------------------
 // --------------- >>> org.springframework.boot Plugin <<< --------------------
 // ----------------------------------------------------------------------------
+// https://docs.spring.io/spring-boot/gradle-plugin/index.html
 
 tasks.bootRun {
   // The main function declared inside the package containing the file
