@@ -1,0 +1,63 @@
+---
+version: 2.1
+
+parameters:
+  action:
+    type: enum
+    enum:
+      - build-test
+    default: build-test
+
+  ######################  executors  #############################################
+
+executors:
+
+  amd64_docker_executor:
+    description: >
+      An AMD64 CPU architecture cimg/base executor image.
+    docker:
+      - image: cimg/base:2025.06
+    resource_class: large
+
+  jdk21_executor:
+    description: >
+      A Java 21 VM executor.
+    docker:
+      - image: cimg/openjdk:21.0
+    resource_class: large
+
+######################  jobs  ##################################################
+
+jobs:
+
+  ####################  build-test-job  #######################################
+  ##
+  build-test-job:
+    description: >
+      Job to run linter, build, and unit test.
+    executor: jdk21_executor
+    steps:
+      - checkout
+      - run:
+          name: Build and run unit tests
+          command: |
+            ./gradlew :app:spotlessCheck  || {
+              printf "run ./gradlew :app:spotlessApply\n" >&2
+              exit 1
+            }
+            ./gradlew --info check
+
+######################  workflows  #############################################
+
+workflows:
+
+  ####################  build-test-workflow  ###################################
+  ##
+  build-test-workflow:
+    when:
+      equal: [build-test, << pipeline.parameters.action >>]
+    jobs:
+      # Build, lint, and unit test
+      - build-test-job
+      # Sonar qube software quality gate
+      -
