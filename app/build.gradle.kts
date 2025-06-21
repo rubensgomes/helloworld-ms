@@ -176,6 +176,7 @@ val scmConnection: String by project
 val scmUrl: String by project
 val license: String by project
 val licenseUrl: String by project
+val repsyUrl: String by project
 
 publishing {
   publications {
@@ -215,14 +216,11 @@ publishing {
   }
 
   repositories {
-    val repsyUrl: String by project
 
     maven {
       url = uri(repsyUrl)
-      credentials {
-        username = repsyUsername
-        password = repsyPassword
-      }
+      credentials.username = repsyUsername
+      credentials.password = repsyPassword
     }
   }
 }
