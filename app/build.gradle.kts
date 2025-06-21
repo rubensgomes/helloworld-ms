@@ -216,7 +216,6 @@ publishing {
   }
 
   repositories {
-
     maven {
       url = uri(repsyUrl)
       credentials.username = repsyUsername
