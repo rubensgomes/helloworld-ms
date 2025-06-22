@@ -178,11 +178,9 @@ spotless {
 // https://github.com/researchgate/gradle-release
 
 release {
-  release {
-    with(git) {
-      pushReleaseVersionBranch.set("release")
-      requireBranch.set("main")
-    }
+  with(git) {
+    pushReleaseVersionBranch.set("release")
+    requireBranch.set("main")
   }
 }
 
