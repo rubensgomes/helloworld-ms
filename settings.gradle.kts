@@ -7,12 +7,10 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-// We must use environment variables for security reasons, and also to allow
+// We must use environment variables for security reasons, and to allow
 // the credentials to be passed to docker containers running from pipelines.
-// NOTE: these variable must be defined in a CircleCI context used by the build.
-// REPSY_USERNAME and exitREPSY_PASSWORD environment variables
+// REPSY_USERNAME must be defined as an environment variable
 val repsyUsername = System.getenv("REPSY_USERNAME")
-val repsyPassword = System.getenv("REPSY_PASSWORD")
 
 dependencyResolutionManagement {
     repositories {
@@ -20,7 +18,6 @@ dependencyResolutionManagement {
             url = uri("https://repo.repsy.io/mvn/rubensgomes/default/")
             credentials {
                 username = repsyUsername
-                password = repsyPassword
             }
         }
     }

@@ -4,7 +4,6 @@ plugins {
   id("jacoco")
   id("java")
   `jvm-test-suite`
-  id("maven-publish")
   id("version-catalog")
   // org.jetbrains.kotlin.jvm
   alias(ctlg.plugins.kotlin.jvm)
@@ -21,11 +20,6 @@ plugins {
   // io.spring.dependency-management
   alias(ctlg.plugins.spring.dependency.management)
 }
-
-val artifact: String by project
-val developerId: String by project
-val developerName: String by project
-val title: String by project
 
 configurations { compileOnly { extendsFrom(configurations.annotationProcessor.get()) } }
 
@@ -135,11 +129,11 @@ tasks.jar {
   manifest {
     attributes(
         mapOf(
-            "Specification-Title" to title,
-            "Implementation-Title" to artifact,
-            "Implementation-Version" to project.version,
-            "Implementation-Vendor" to developerName,
-            "Built-By" to developerId,
+            "Specification-Title" to project.properties["title"],
+            "Implementation-Title" to project.properties["artifact"],
+            "Implementation-Version" to project.properties["version"],
+            "Implementation-Vendor" to project.properties["developerName"],
+            "Built-By" to project.properties["developerId"],
             "Build-Jdk" to System.getProperty("java.home"),
             "Created-By" to
                 "${System.getProperty("java.version")} (${System.getProperty("java.vendor")})"))
@@ -159,69 +153,6 @@ tasks.test {
   jvmArgs("-XX:+EnableDynamicAgentLoading")
   // report is always generated after tests run
   finalizedBy(tasks.jacocoTestReport)
-}
-
-// ----------------------------------------------------------------------------
-// --------------- >>> Gradle Maven Publish Plugin <<< ------------------------
-// ----------------------------------------------------------------------------
-// https://docs.gradle.org/current/userguide/publishing_maven.html
-
-// REPSY environment variables
-val repsyUsername = System.getenv("REPSY_USERNAME")
-val repsyPassword = System.getenv("REPSY_PASSWORD")
-
-// gradle.properties:
-val developerEmail: String by project
-val scmConnection: String by project
-val scmUrl: String by project
-val license: String by project
-val licenseUrl: String by project
-val repsyUrl: String by project
-
-publishing {
-  publications {
-    create<MavenPublication>("maven") {
-      groupId = project.group.toString()
-      artifactId = artifact
-      version = project.version.toString()
-
-      from(components["java"])
-
-      pom {
-        name = title
-        description = project.description
-        inceptionYear = "2025"
-        packaging = "jar"
-
-        licenses {
-          license {
-            name = license
-            url = licenseUrl
-          }
-        }
-        developers {
-          developer {
-            id = developerId
-            name = developerName
-            email = developerEmail
-          }
-        }
-        scm {
-          connection = scmConnection
-          developerConnection = scmConnection
-          url = scmUrl
-        }
-      }
-    }
-  }
-
-  repositories {
-    maven {
-      url = uri(repsyUrl)
-      credentials.username = repsyUsername
-      credentials.password = repsyPassword
-    }
-  }
 }
 
 // ----------------------------------------------------------------------------
@@ -246,12 +177,7 @@ spotless {
 // ----------------------------------------------------------------------------
 // https://github.com/researchgate/gradle-release
 
-release {
-  with(git) {
-    pushReleaseVersionBranch.set("release")
-    requireBranch.set("main")
-  }
-}
+release { with(git) { pushReleaseVersionBranch.set("release") } }
 
 // tasks.afterReleaseBuild { dependsOn("publish") }
 
@@ -261,15 +187,13 @@ release {
 // https://kotlinlang.org/docs/gradle-configure-project.html#kotlin-and-java-sources
 
 kotlin {
-  compilerOptions {
-    /**
-     * Java types used by Kotlin relaxes the null-safety checks. And the Spring Framework provides
-     * null-safety annotations that could be potentially used by Kotlin types. Therefore, we need to
-     * make jsr305 "strict" to ensure null-safety checks is NOT relaxed in Kotlin when Java
-     * annotations, which are Kotlin platform types, are used.
-     */
-    freeCompilerArgs.addAll("-Xjsr305=strict")
-  }
+  /**
+   * Java types used by Kotlin relaxes the null-safety checks. And the Spring Framework provides
+   * null-safety annotations that could be potentially used by Kotlin types. Therefore, we need to
+   * make jsr305 "strict" to ensure null-safety checks is NOT relaxed in Kotlin when Java
+   * annotations, which are Kotlin platform types, are used.
+   */
+  compilerOptions { freeCompilerArgs.addAll("-Xjsr305=strict") }
 }
 
 tasks.compileKotlin { dependsOn("spotlessApply") }
@@ -302,10 +226,43 @@ tasks.sonar { dependsOn("check") }
 // ----------------------------------------------------------------------------
 // https://docs.spring.io/spring-boot/gradle-plugin/index.html
 
-tasks.bootRun {
+springBoot {
   // The main function declared inside the package containing the file
   // "App.kt" is compiled into static methods of a Java class named AppKt
   mainClass.set("com.rubensgomes.helloworld.AppKt")
-  jvmArgs(listOf<String>("Xmx256m"))
-  dependsOn("check")
 }
+
+tasks.bootBuildImage {
+  builder.set("paketobuildpacks/builder-jammy-base:latest")
+  applicationDirectory.set("/spring")
+  cleanCache.set(true)
+  createdDate.set("now")
+  val repository: String = project.findProperty("docker.image.repository").toString()
+  val version: String = project.findProperty("version").toString()
+  imageName.set("$repository:$version")
+  imagePlatform.set("linux/amd64")
+  network.set("bridge")
+  verboseLogging.set(true)
+  publish.set(true)
+  docker {
+    val token: String = System.getenv("DOCKERIO_PAT")
+    builderRegistry {
+      username.set("rubensgomes")
+      password.set(token)
+      email.set("rubens.s.gomes@gmail.com")
+    }
+    publishRegistry {
+      username.set("rubensgomes")
+      password.set(token)
+      email.set("rubens.s.gomes@gmail.com")
+    }
+  }
+}
+
+tasks.bootJar {
+  layered.enabled.set(true)
+  dependsOn("check")
+  manifest { attributes("Start-Class" to "com.rubensgomes.helloworld.AppKt") }
+}
+
+tasks.bootRun { dependsOn("check") }

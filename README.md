@@ -22,50 +22,53 @@ A basic Kotlin Spring Boot microservice.
 - This steps assumes you are using `JetBrains IntelliJIDEA`
 - [SonarQube Plugin Installation](https://docs.sonarsource.com/sonarqube-for-ide/intellij/getting-started/installation/)
 
-
-## Clean, lint, test, and assemble
+## Clean, lint, test, assemble, push
 
 ```shell
-./gradlew --info clean
+# clean the build
+./gradlew clean -i
 ```
 
 ```shell
-./gradlew :app:spotlessApply
+# lint and unit tests
+./gradlew check -i
 ```
 
 ```shell
-./gradlew --info check
+# create a layered bootjar
+./gradlew bootJar -i
 ```
 
 ```shell
+# create a layered bootjar
 ./gradlew --info bootJar
+```
+
+```shell
+# build and push bootjar to dockerhub
+./gradlew bootBuildImage -i
+```
+
+```shell
+# only Rubens can release
+./gradlew release -i
 ```
 
 ### Start and stop using bootRun
 
-- Start using "bootRun":
-
-  ```shell
-  ./gradlew --info bootRun
-  ```
-
-- Stop "bootRun"
-
-  ```shell
-  ./gradlew --stop
-  ```
-
-- To render the `Hello World!` message:
-
-  ```shell
-  curl --verbose "http://localhost:8080/api/v1/helloworld"
-  ```
-
-### To create a release
+```shell
+# start bootjar
+./gradlew bootRun -i
+```
 
 ```shell
-# only Rubens can release
-./gradlew --info release
+# stop running bootjar
+./gradlew --stop
+```
+
+```shell
+# render the Hello World! message:
+curl --verbose "http://localhost:8080/api/v1/helloworld"
 ```
 
 ## Public API in AWS ECS
