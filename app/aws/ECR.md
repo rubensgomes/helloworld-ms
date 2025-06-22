@@ -51,7 +51,8 @@ ECR registry,
    ```shell
    cd ..
    # extract version from app-x.y.z.jar (e.g., version=x.y.z)
-   version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+   # version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+   version="0.0.8"
    registry="347851559421.dkr.ecr.us-east-1.amazonaws.com"
    repository="rubensgomes/helloworld-ms"
    docker image tag ${repository}:${version} \
@@ -66,7 +67,8 @@ ECR registry,
   ```shell
   cd ..
   # extract version from app-x.y.z.jar (e.g., version=x.y.z)
-  version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+  # version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+  version="0.0.8"
   registry="347851559421.dkr.ecr.us-east-1.amazonaws.com"
   repository="rubensgomes/helloworld-ms"
   printf "pushing image to ECR registry: %s\n" "${registry}"
@@ -81,7 +83,8 @@ ECR registry,
   ```shell
   cd ..
   # extract version from app-x.y.z.jar (e.g., version=x.y.z)
-  version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+  # version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+  version="0.0.8"
   registry="347851559421.dkr.ecr.us-east-1.amazonaws.com"
   repository="rubensgomes/helloworld-ms"
   printf "pulling image from ECR registry: %s\n" "${registry}"
@@ -96,7 +99,8 @@ ECR registry,
   ```shell
   cd ..
   # extract version from app-x.y.z.jar (e.g., version=x.y.z)
-  version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+  # version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+  version="0.0.8"
   registry="347851559421.dkr.ecr.us-east-1.amazonaws.com"
   repository="rubensgomes/helloworld-ms"
   printf "removing image from local registry repository\n"
@@ -111,7 +115,8 @@ ECR registry,
   ```shell
   cd ..
   # extract version from app-x.y.z.jar (e.g., version=x.y.z)
-  version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+  # version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+  version="0.0.8"
   registry="347851559421.dkr.ecr.us-east-1.amazonaws.com"
   repository="rubensgomes/helloworld-ms"
   aws ecr batch-delete-image \
