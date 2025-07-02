@@ -55,7 +55,6 @@ docker system prune -a --volumes
 
 ```shell
 # only Rubens can release
-# TODO: release not working. It is not updating the release branch.
 ./gradlew release -i
 ```
 

@@ -1,7 +1,10 @@
 # docker
 
-This file describes the steps to build/push a containerized image of the
-application to a local and remote Docker registry.
+This file describes the manual steps to build/push a containerized layered image
+of the application to a local and remote Docker registry.
+
+_NOTE: The following is a manual way to create a layered jar. You should
+consider using the automated `./gradlew bootBuildImage -i` instead._
 
 ## Docker Containerized Image Best Practices
 
@@ -19,6 +22,9 @@ application to a local and remote Docker registry.
 
 ## Create a Spring Boot layered build
 
+_NOTE: The following is a manual way to create a layered jar. You should
+consider using the automated `./gradlew bootBuildImage -i` instead._
+
 1. Create a fat bootJar of the application:
 
     ```shell
@@ -34,7 +40,7 @@ application to a local and remote Docker registry.
     ```shell
     cd app/build/libs
     # extract version from build/libs/app-x.y.z.jar (e.g., version=x.y.z)
-    version="$(ls  app-[0-9]\.[0-9]\.[0-9][^-]\.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+    version="$(ls  app-[0-9]\.[0-9]\.[0-9][^-](-SNAPSHOT)?\.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
     rm -fr ../layer
     java -Djarmode=tools \
       -jar app-${version}.jar extract \
@@ -44,9 +50,7 @@ application to a local and remote Docker registry.
     }
     ```
 
-## Build Spring Boot layered docker image
-
-- to build a Spring Boot layered docker image:
+3. Build a Spring Boot layered docker image:
 
   ```shell
   cd app
@@ -67,18 +71,18 @@ application to a local and remote Docker registry.
 
 ## Push docker image to Rubens' DockerHub registry:
 
-- Sign in to DockerHub registry account
+1. Sign in to DockerHub registry account:
 
-  ```shell
-  # only Rubens can push images below
-  printf "signing in to DockerHub\n"
-  docker login --username "rubensgomes" --password "${DOCKERIO_PAT}" || {
+    ```shell
+    # only Rubens can push images below
+    printf "signing in to DockerHub\n"
+    docker login --username "rubensgomes" --password "${DOCKERIO_PAT}" || {
     printf "failed to login\n" >&2
     sleep 5
-  }
-  ```
+    }
+    ```
 
-- Tag image to push to docker.io registry repository
+2. Create a tag image to push to docker.io registry repository:
 
    ```shell
    cd app
@@ -93,42 +97,42 @@ application to a local and remote Docker registry.
    }
    ```
 
-- Push image to DockerHub registry repository
+3. Push image to DockerHub registry repository:
 
-  ```shell
-  cd app
-  # extract version from app-x.y.z.jar (e.g., version=x.y.z)
-  version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
-  printf "pushing image to DockerHub\n"
-  docker image push "rubensgomes/helloworld-ms:${version}" || {
+    ```shell
+    cd app
+    # extract version from app-x.y.z.jar (e.g., version=x.y.z)
+    version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+    printf "pushing image to DockerHub\n"
+    docker image push "rubensgomes/helloworld-ms:${version}" || {
     printf "failed to push image\n" >&2
     sleep 5
-  }
-  ```
+    }
+    ```
 
-- Pull image from DockerHub registry repository
+4. Pull image from DockerHub registry repository:
 
-  ```shell
-  cd app
-  # extract version from app-x.y.z.jar (e.g., version=x.y.z)
-  version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
-  printf "pulling image from DockerHub\n"
-  docker image pull "rubensgomes/helloworld-ms:${version}" || {
+    ```shell
+    cd app
+    # extract version from app-x.y.z.jar (e.g., version=x.y.z)
+    version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+    printf "pulling image from DockerHub\n"
+    docker image pull "rubensgomes/helloworld-ms:${version}" || {
     printf "failed to pull image\n" >&2
     sleep 5
-  }
-  ```
+    }
+    ```
 
-- To remove image from local registry
+5. Remove image from local registry:
 
-  ```shell
-  cd app
-  # extract version from app-x.y.z.jar (e.g., version=x.y.z)
-  version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
-  printf "removing image from local registry repository\n"
-  docker image rm "rubensgomes/helloworld-ms:${version}" || {
+    ```shell
+    cd app
+    # extract version from app-x.y.z.jar (e.g., version=x.y.z)
+    version="$(ls build/layer/*.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+    printf "removing image from local registry repository\n"
+    docker image rm "rubensgomes/helloworld-ms:${version}" || {
     printf "failed to remove image\n" >&2
     sleep 5
-  }
-  ```
+    }
+    ```
 
