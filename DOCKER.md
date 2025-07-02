@@ -34,7 +34,7 @@ application to a local and remote Docker registry.
     ```shell
     cd app/build/libs
     # extract version from build/libs/app-x.y.z.jar (e.g., version=x.y.z)
-    version="$(ls *.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
+    version="$(ls  app-[0-9]\.[0-9]\.[0-9][^-]\.jar | awk -F- '{print $2}' | awk -F.jar '{print $1}')"
     rm -fr ../layer
     java -Djarmode=tools \
       -jar app-${version}.jar extract \
@@ -132,30 +132,3 @@ application to a local and remote Docker registry.
   }
   ```
 
-## Start and stop using docker compose
-
-- Start docker container:
-
-  ```shell
-  cd app
-  docker compose up --detach --no-recreate --remove-orphans || {
-    printf "failed to stop container.\n" >&2
-    sleep 5   
-  }
-  ```
-
-- Stop docker container:
-
-  ```shell
-  cd app
-  docker compose down --remove-orphans || {
-    printf "failed to stop container.\n" >&2
-    sleep 5
-  }
-  ```
-
-- To render the `Hello World!` messasge:
-
-  ```shell
-  curl --verbose "http://localhost:8080/api/v1/helloworld"
-  ```
