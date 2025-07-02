@@ -184,6 +184,13 @@ release {
   }
 }
 
+// trick the plugin using to address bug in the release plugin.
+tasks.preTagCommit {
+  doFirst {
+    extension.attributes["versionModified"] = true
+  }
+}
+
 // tasks.afterReleaseBuild { dependsOn("publish") }
 
 // ----------------------------------------------------------------------------

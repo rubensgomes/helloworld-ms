@@ -1,5 +1,4 @@
 # helloworld-ms
-TESTING
 
 A basic Kotlin Spring Boot microservice.
 
@@ -23,6 +22,15 @@ A basic Kotlin Spring Boot microservice.
 - This steps assumes you are using `JetBrains IntelliJIDEA`
 - [SonarQube Plugin Installation](https://docs.sonarsource.com/sonarqube-for-ide/intellij/getting-started/installation/)
 
+## Clean Docker Containers, Images and System
+
+```shell
+# remove all containers
+docker container rm -vf $(docker ps -aq)
+docker image rm -f $(docker images -aq)
+docker system prune -a --volumes
+```
+
 ## Clean, lint, test, assemble, push
 
 ```shell
@@ -41,19 +49,45 @@ A basic Kotlin Spring Boot microservice.
 ```
 
 ```shell
-# create a layered bootjar
-./gradlew --info bootJar
-```
-
-```shell
 # build and push bootjar to dockerhub
 ./gradlew bootBuildImage -i
 ```
 
 ```shell
 # only Rubens can release
+# TODO: release not working. It is not updating the release branch.
 ./gradlew release -i
 ```
+
+## Start and stop using docker compose
+
+- Start docker container:
+
+  ```shell
+  cd app
+  docker compose up --detach --no-recreate --remove-orphans || {
+    printf "failed to stop container.\n" >&2
+    sleep 5   
+  }
+  ```
+
+- Stop docker container:
+
+  ```shell
+  cd app
+  docker compose down --remove-orphans || {
+    printf "failed to stop container.\n" >&2
+    sleep 5
+  }
+  ```
+
+- To render the `Hello World!` messasge:
+
+  ```shell
+  curl --verbose "http://localhost:8080/api/v1/helloworld"
+  ```
+
+
 
 ### Start and stop using bootRun
 
