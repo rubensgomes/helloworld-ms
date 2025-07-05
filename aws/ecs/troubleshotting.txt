@@ -1,0 +1,40 @@
+Not responding:
+
+1. Check CloudWatch logs for the service
+
+2. Take note of the Spring Boot app startup settings:
+  - IP address 172.31.28.145
+  - Listening port 8080
+
+3. Grab the local IP address:
+  - https://checkip.amazonaws.com/
+  - 35.146.45.12 --> IP CIDR is 35.146.45.12/32
+
+4. Get security group inboud settings:
+  - sg-07fd03e50988c04b8 - default
+
+5. Ensure ecurity group inboud settings:
+  - Ensure one inbound rule setup as:
+    HTTP / TCP / 80 / Custom / 35.146.45.12/32
+
+6. Get the VPC ID used by the security group:
+  - VPC ID: vpc-045218fadf49af3a0
+
+7. Get Subnet CIDR of VPC
+  - subnet IP CIDR: 172.31.16.0/20
+
+8. Ensure the IP address of running app is within CIDR:
+    * subnet IP CIDR: 172.31.16.0/20
+      start: 172.31.16.0
+      end:   172.31.31.255
+    * IP "172.31.28.145" is within CIDR
+
+9. Check the Service:
+  - Ensure the task was launched using FARGATE
+
+10. Retrieve the public IP from the Service Task
+  - 3.86.84.22
+
+11. Submit a curl GET
+  0 curl --verbose "http://3.86.84.22/api/v1/helloworld"
+

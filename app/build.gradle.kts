@@ -242,8 +242,13 @@ tasks.bootBuildImage {
   applicationDirectory.set("/spring")
   cleanCache.set(true)
   createdDate.set("now")
+  val registry: String = project.findProperty("docker.image.registry").toString()
   val repository: String = project.findProperty("docker.image.repository").toString()
-  val version: String = project.findProperty("version").toString()
+  //  val version: String = project.findProperty("version").toString()
+  // use "latest" tag to keep things simple
+  val version: String = "latest"
+  val tag: String = "$registry/$repository:$version"
+  tags.set(listOf(tag))
   imageName.set("$repository:$version")
   imagePlatform.set("linux/amd64")
   network.set("bridge")

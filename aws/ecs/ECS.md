@@ -1,6 +1,7 @@
 # ECS
 
-This file describes how to set up an ECS to have tasks running docker containers.
+This file provides general information on setting up AWS ECS, and have tasks
+running containerized image applications.
 
 ## Prerequisites
 
@@ -11,12 +12,14 @@ This file describes how to set up an ECS to have tasks running docker containers
 4. Create a key-pair in the us-east-1 region
 5. Create an ECS cluster -- I had to use the root user!!!
 6. Create an ECS task definition
-7. Use Spring Boot SERVER_PORT to define the container port to use
+7. Using Environment in Task Definitions:
+   - You may SERVER_PORT to define the Spring Boot container port to use
 
-   ```shell
-   SERVER_PORT="5000"
-   declare -rx SERVER_PORT   
-   ```
+      ```shell
+      # use this only if you don't want to use Spring Boot default "8080" port
+      SERVER_PORT="5000"
+      declare -rx SERVER_PORT   
+      ```
    
 8. [Learn how to create an Amazon ECS Linux task for the Fargate launch type](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/getting-started-fargate.html)
 9. [Creating Amazon ECS resources using the AWS CDK](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/tutorial-ecs-web-server-cdk.html)
@@ -34,7 +37,7 @@ This file describes how to set up an ECS to have tasks running docker containers
    - https://checkip.amazonaws.com/
    - assume: 35.146.45.12
 5. Create following inbound rule:
-   - Custom TCP / TCP / 8888 / 35.146.45.12/32
+   - Custom TCP / TCP / 8080 / 35.146.45.12/32
 
 ### VPC - Default VPC
 
@@ -55,54 +58,49 @@ This file describes how to set up an ECS to have tasks running docker containers
 - Select task definition family
 - Enter the latest definition
 - Enter service name (or leave default)
-
-### Push Image to Private ECR
-
-- ECR Repository - Create repository
-
-   ```shell
-   repository="rubensgomes/helloworld-ms"
-   aws ecr create-repository \
-   --repository-name "${repository}"  \
-   --region us-east-1 \
-   --profile admin
-   ```
-
-- ECR Repositoy - Login to Repository
-
-   ```shell
-   aws sso login --profile admin
-   # Rubens' personal account id: 347851559421
-   registry="347851559421.dkr.ecr.us-east-1.amazonaws.com"
-   aws ecr get-login-password --region us-east-1 --profile admin \
-   | docker login --username AWS --password-stdin ${registry}
-   ```
-
-- ECR Repositoy - Tag Image
-
-   ```shell
-   version="x.y.z"
-   registry="347851559421.dkr.ecr.us-east-1.amazonaws.com"
-   repository="rubensgomes/helloworld-ms"
-   docker image tag ${repository}:${version} \
-   ${registry}/${repository}:${version}
-   ```
-
-- ECR Repository - Push Image to ECR
-
-   ```shell
-   version="x.y.z"
-   registry="347851559421.dkr.ecr.us-east-1.amazonaws.com"
-   repository="rubensgomes/helloworld-ms"
-   docker image push "${registry}/${repository}:${version}"
-   ```
+- Ensure to select "Lanuch Type" --> FARGATE
 
 ### Exercise REST API
 
 Once the service is up and running:
 
    ```text
-   http://34.224.71.19:8888/api/v1/helloworld
+   http://34.224.71.19/api/v1/helloworld
    prints {"message":"Hello World!"}
    ```
 
+
+## Create Custom ECS Cluster
+
+- Note: image "347851559421.dkr.ecr.us-east-1.amazonaws.com/rubensgomes/helloworld-ms:latest"
+
+1. Sign in using sso login:
+
+    ```shell
+    # previously configured profile admin
+    AWS_PROFILE="admin"
+    aws sso login --profile ${AWS_PROFILE}
+    # aws sts get-caller-identity  --profile ${AWS_PROFILE}
+    ```
+
+2. Create custom ECS cluster:
+
+   ```shell
+   CLUSTER="rubens-fargate-cluster"
+   AWS_REGION="us-east-1"
+   AWS_PROFILE="admin"
+   aws ecs create-cluster \
+     --cluster-name ${CLUSTER} \
+     --region ${AWS_REGION} \
+     --profile ${AWS_PROFILE}
+   ```
+   
+3. Retrieve ECS service:
+
+   ```shell
+   aws ecs describe-services \
+     --services helloworld-task-service-btl0eelf \
+     --profile admin \
+     --region us-east-1 \
+     --cluster rubens-cluster
+   ```

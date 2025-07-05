@@ -1,0 +1,34 @@
+---
+# ==================== >>> Deployment <<< =====================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: rubens-playground-cluster
+  name: deployment-helloworld-ms
+  labels:
+    app: helloworld-ms
+spec:
+  selector:
+    matchLabels:
+      app: helloworld-ms
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: helloworld-ms
+    spec:
+      containers:
+        - name: container-helloworld-ms
+          # the image URI in the private ECR registry
+          image: 347851559421.dkr.ecr.us-east-1.amazonaws.com/rubensgomes/helloworld-ms:latest
+          imagePullPolicy: Always
+          ports:
+            # container port must be the Spring Boot app default: 8080
+            - containerPort: 8080
+      nodeSelector:
+        # if both windows and linux found in cluse, always use linux nodes
+        kubernetes.io/os: linux
+      imagePullSecrets:
+        # The name of previously created Kubernetes secret to access
+        # Rubens AWS ECR private registry
+        - name: secret/rubens-aws-secret
