@@ -1,3 +1,6 @@
+# Rubens AWS authentication token
+.aws_token
+
 # Compiled class file
 *.class
 

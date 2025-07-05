@@ -1,0 +1,16 @@
+---
+# ==================== >>> Service <<< ========================================
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: rubens-playground-cluster
+  name: service-helloworld-ms
+spec:
+  selector:
+    app.kubernetes.io/name: helloworld-ms
+  ports:
+    - port: 80
+      # Use the Spring Boot default listening port for the application.
+      targetPort: 8080
+      protocol: TCP
+  type: NodePort
