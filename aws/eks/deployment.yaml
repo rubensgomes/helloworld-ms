@@ -11,7 +11,7 @@ spec:
   selector:
     matchLabels:
       app: helloworld-ms
-  replicas: 3
+  replicas: 2
   template:
     metadata:
       labels:
@@ -22,6 +22,17 @@ spec:
           # the image URI in the private ECR registry
           image: 347851559421.dkr.ecr.us-east-1.amazonaws.com/rubensgomes/helloworld-ms:latest
           imagePullPolicy: Always
+          resources:
+            requests:
+              # same as 0.25 or 25% of cpu quota requested (maps to docker --cpu-quota)
+              cpu: 250m
+              # minimum amount of memory guaranteed to container (NOT found in docker)
+              memory: 100Mi
+            limits:
+              # 0.5 percent of cpu period requested (maps to docker --cpu-period)
+              cpu: 500m
+              # max amount of memory container can use (maps to docker --memory)
+              memory: 200Mi
           ports:
             # container port must be the Spring Boot app default: 8080
             - containerPort: 8080

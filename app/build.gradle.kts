@@ -5,6 +5,7 @@ plugins {
   id("java")
   `jvm-test-suite`
   id("version-catalog")
+  id("com.dorongold.task-tree") version "4.0.1"
   // org.jetbrains.kotlin.jvm
   alias(ctlg.plugins.kotlin.jvm)
   // org.jetbrains.kotlin.plugin.spring
@@ -270,6 +271,7 @@ tasks.bootBuildImage {
 }
 
 tasks.bootJar {
+  // layered.enabled.set(false)
   layered.enabled.set(true)
   dependsOn("check")
   manifest { attributes("Start-Class" to "com.rubensgomes.helloworld.AppKt") }

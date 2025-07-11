@@ -112,8 +112,8 @@ pushing and running a containerized application.
 1. Create a Kubernetes namespace:
 
     ```shell
-    NAMESPACE="rubens-playground-cluster"
-    kubectl create namespace ${NAMESPACE} \
+    kubectl create namespace ]
+      -f namespace.yaml \
       --save-config --v=8
     ```
    
@@ -124,7 +124,7 @@ pushing and running a containerized application.
     AWS_ACCOUNT="347851559421"
     AWS_REGION="us-east-1"
     AWS_PROFILE="admin"
-    NAMESPACE="rubens-playground-cluster"
+    NAMESPACE="kube-playground"
     SECRET_NAME="rubens-aws-secret"
     # NOTE: the docker-ussername for ECR authentication is always AWS
     kubectl create secret docker-registry ${SECRET_NAME} \
@@ -139,7 +139,7 @@ pushing and running a containerized application.
 1. Apply Kubernetes `deployment` manifest to cluster:
 
     ```shell
-    NAMESPACE="rubens-playground-cluster"
+    NAMESPACE="kube-playground"
     kubectl apply \
       --namespace=${NAMESPACE} \
       -f deployment.yaml \
@@ -149,7 +149,7 @@ pushing and running a containerized application.
 2. Apply Kubernetes `service` manifest to cluster:
 
     ```shell
-    NAMESPACE="rubens-playground-cluster"
+    NAMESPACE="kube-playground"
     kubectl apply \
       --namespace=${NAMESPACE} \
       -f service.yaml \
@@ -159,7 +159,7 @@ pushing and running a containerized application.
 3. Apply Kubernetes `ingress` manifest to cluster:
 
     ```shell
-    NAMESPACE="rubens-playground-cluster"
+    NAMESPACE="kube-playground"
     kubectl apply \
       --namespace=${NAMESPACE} \
       -f ingress.yaml \
@@ -169,21 +169,21 @@ pushing and running a containerized application.
 4. Get `ingress` resource for namespace:
 
    ```shell
-   NAMESPACE="rubens-playground-cluster"
+   NAMESPACE="kube-playground"
    kubectl get ingress -n ${NAMESPACE}
    ```
    
 5. Get all Kubernetes resources used in the `namespace`:
 
    ```shell
-   NAMESPACE="rubens-playground-cluster"
+   NAMESPACE="kube-playground"
    kubectl get all -n ${NAMESPACE}
    ```
 
 6. Get details of `service`:
 
    ```shell
-   NAMESPACE="rubens-playground-cluster"
+   NAMESPACE="kube-playground"
    SERVICE="service-helloworld-ms"
    kubectl -n  ${NAMESPACE} describe service ${SERVICE}
    ```
@@ -191,7 +191,7 @@ pushing and running a containerized application.
 7. Get details of `pod`:
 
    ```shell
-   NAMESPACE="rubens-playground-cluster"
+   NAMESPACE="kube-playground"
    POD="deployment-helloworld-ms-8598fd76f4-5kn2j"
    kubectl -n  ${NAMESPACE} describe pod ${POD}
    ```
@@ -206,7 +206,7 @@ pushing and running a containerized application.
 9. Shell into the pod:
 
    ```shell
-   NAMESPACE="rubens-playground-cluster"
+   NAMESPACE="kube-playground"
    POD="deployment-helloworld-ms-8598fd76f4-5kn2j"
    kubectl exec -it ${POD} -n ${NAMESPACE} -- /bin/bash
    ```
@@ -214,6 +214,6 @@ pushing and running a containerized application.
 10. Delete the entire namesapce:
 
     ```shell
-    NAMESPACE="rubens-playground-cluster"
+    NAMESPACE="kube-playground"
     kubectl delete namespace ${NAMESPACE} --v=8
     ```

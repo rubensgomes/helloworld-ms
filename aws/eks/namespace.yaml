@@ -1,0 +1,6 @@
+---
+# namespace to isolate Rubens Kubernetes resources within the cluster
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-playground
