@@ -8,7 +8,7 @@ A basic Kotlin Spring Boot microservice.
 
 ```shell
 # update version when needed
-./gradlew wrapper --gradle-version 8.14.2
+./gradlew wrapper --gradle-version 8.14.3
 ```
 
 ## Display Java tools installed
